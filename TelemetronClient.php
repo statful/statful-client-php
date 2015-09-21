@@ -24,7 +24,7 @@ class TelemetronClient {
      * @port string $port statsd host port
      * @prefix string $prefix metric prefix
      **/
-    function __construct($host = '127.0.0.1', $port = '2014', $prefix = '', $app = '') {
+    function __construct($host = '127.0.0.1', $port = '2013', $prefix = '', $app = '') {
         $this->host = $host;
         $this->port = $port;
         $this->prefix = $prefix;
