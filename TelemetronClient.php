@@ -52,10 +52,10 @@ class TelemetronClient {
      */
      public function time($name, $value, $tags = array(), $namespace = 'application', $agg = null, $aggFreq = 10) {
         if(!$agg) $agg = array('avg', 'p90', 'count', 'count_ps');
-        $type = array('type' => $name, 'unit' => 'ms');
+        $type = array('unit' => 'ms');
         if(!$value || $value < 0) $value = 0;
 
-        $this->put('timer', array_merge($type, $tags), $value, $agg, $aggFreq, $this->sampleRate, $namespace);
+        $this->put('timer.'.$name, array_merge($type, $tags), $value, $agg, $aggFreq, $this->sampleRate, $namespace);
     }
 
     /**
@@ -70,10 +70,9 @@ class TelemetronClient {
      */
     public function inc($name, $value, $tags = array(), $namespace = 'application', $agg = null, $aggFreq = 10) {
         if(!$agg) $agg = array('sum', 'count', 'count_ps');
-        $type = array('type' => $name);
         if(!$value || $value < 0) $value = 0;
 
-        $this->put('counter', array_merge($type, $tags), $value, $agg, $aggFreq, $this->sampleRate, $namespace);
+        $this->put('counter.'.$name, $tags, $value, $agg, $aggFreq, $this->sampleRate, $namespace);
     }
 
     /**
@@ -87,10 +86,9 @@ class TelemetronClient {
      */
     public function gauge($name, $value, $tags = array(), $namespace = 'application', $agg = array('last'), $aggFreq = 10) {
         if(!$agg) $agg = array('last');
-        $type = array('type' => $name);
         if(!$value || $value < 0) $value = 0;
 
-        $this->put('counter', array_merge($type, $tags), $value, $agg, $aggFreq, $this->sampleRate, $namespace);
+        $this->put('counter'.$name, $tags, $value, $agg, $aggFreq, $this->sampleRate, $namespace);
     }
 
     /**
@@ -112,25 +110,27 @@ class TelemetronClient {
         if(!empty($this->app)) $tags = array_merge(array('app' => $this->app), $tags);
         if(!empty($this->tags)) $tags = array_merge($tags, $this->tags);
 
-        foreach ($tags as $tag => $data) {
-            $flushData[] = "$tag=$data";
-        }
-
-        if (empty($flushData)) { return; }
-        array_unshift($flushData,$metricName);
-
-        $flushLine = implode(',', $flushData) . ' ' . $value . ' ' . time();
-
-        if($agg) {
-            $agg[] = $aggFreq;
-            $flushLine .= ' ' . implode(',', $agg);
-
-            if($sample_rate) {
-                $flushLine .= ' ' . $sample_rate;
+        if(rand() <= $sample_rate_normalized) {
+            foreach ($tags as $tag => $data) {
+                $flushData[] = "$tag=$data";
             }
-        }
 
-        $this->putRaw($flushLine);
+            if (empty($flushData)) { return; }
+            array_unshift($flushData,$metricName);
+
+            $flushLine = implode(',', $flushData) . ' ' . $value . ' ' . time();
+
+            if($agg) {
+                $agg[] = $aggFreq;
+                $flushLine .= ' ' . implode(',', $agg);
+
+                if($sample_rate) {
+                    $flushLine .= ' ' . $sample_rate;
+                }
+            }
+
+            $this->putRaw($flushLine);
+        }
     }
 
     /**
