@@ -122,7 +122,7 @@ class TelemetronClient {
         if(!empty($this->app)) $tags = array_merge(array('app' => $this->app), $tags);
         if(!empty($this->tags)) $tags = array_merge($tags, $this->tags);
 
-        if(rand() <= $sample_rate_normalized) {
+        if(mt_rand() / mt_getrandmax() <= $sample_rate_normalized) {
             foreach ($tags as $tag => $data) {
                 $flushData[] = "$tag=$data";
             }
@@ -136,10 +136,12 @@ class TelemetronClient {
                 $agg[] = $aggFreq;
                 $flushLine .= ' ' . implode(',', $agg);
 
-                if($sample_rate) {
+                if($sample_rate && $sample_rate < 100) {
                     $flushLine .= ' ' . $sample_rate;
                 }
             }
+
+            var_dump($flushLine);
 
             $this->putRaw($flushLine);
         }
