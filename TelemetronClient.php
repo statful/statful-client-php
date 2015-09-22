@@ -117,7 +117,7 @@ class TelemetronClient {
         $flushData = array();
         $sample_rate_normalized = ($sample_rate) / 100;
 
-        if(!empty($this->enviroment)) $tags = array_merge(array('environment' => $this->environment), $tags);
+        if(!empty($this->environment)) $tags = array_merge(array('environment' => $this->environment), $tags);
         if(!empty($this->platform)) $tags = array_merge(array('platform' => $this->platform), $tags);
         if(!empty($this->app)) $tags = array_merge(array('app' => $this->app), $tags);
         if(!empty($this->tags)) $tags = array_merge($tags, $this->tags);
