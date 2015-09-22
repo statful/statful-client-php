@@ -13,6 +13,8 @@ class TelemetronClient {
     private $socket;
     private $sampleRate;
     private $buffer;
+    public $enviroment;
+    public $platform;
     public $app;
     public $tags = array();
     public $mock = false;
@@ -20,15 +22,22 @@ class TelemetronClient {
 
     /**
      * Initialize the Telemetron udp client
-     * @param string $host statsd host address
-     * @port string $port statsd host port
-     * @prefix string $prefix metric prefix
+     * @param string host statsd host address
+     * @port string port statsd host port
+     * @prefix string prefix metric prefix
+     * @environment string environment tag
+     * @platform string platform tag
+     * @app string app tag
+     * @tags array custom tags. Ex: ['tagName' => 'value']
      **/
-    function __construct($host = '127.0.0.1', $port = '2013', $prefix = '', $app = '') {
+    function __construct($host = '127.0.0.1', $port = '2013', $prefix = '', $environment = '', $platform = '', $app = '', $tags = array()) {
         $this->host = $host;
         $this->port = $port;
         $this->prefix = $prefix;
+        $this->environment = $environment;
+        $this->platform = $platform;
         $this->app = $app;
+        $this->tags = $tags;
         $this->buffer = array();
 
         try {
@@ -108,6 +117,8 @@ class TelemetronClient {
         $flushData = array();
         $sample_rate_normalized = ($sample_rate) / 100;
 
+        if(!empty($this->enviroment)) $tags = array_merge(array('environment' => $this->environment), $tags);
+        if(!empty($this->platform)) $tags = array_merge(array('platform' => $this->platform), $tags);
         if(!empty($this->app)) $tags = array_merge(array('app' => $this->app), $tags);
         if(!empty($this->tags)) $tags = array_merge($tags, $this->tags);
 
