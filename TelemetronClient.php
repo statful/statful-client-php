@@ -28,6 +28,7 @@ class TelemetronClient {
         $this->host = $host;
         $this->port = $port;
         $this->prefix = $prefix;
+        $this->app = $app;
         $this->buffer = array();
 
         try {
