@@ -60,7 +60,7 @@ class TelemetronClient {
      * @param agg List of aggregations to be applied by the Telemetron. Ex: ['avg', 'p90', 'min']
      * @param aggFreq Aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
      */
-     public function time($name, $value, $tags = array(), $namespace = 'application', $agg = null, $aggFreq = 10) {
+    public function time($name, $value, $tags = array(), $namespace = 'application', $agg = null, $aggFreq = 10) {
         if(!$agg) $agg = array('avg', 'p90', 'count', 'count_ps');
         $type = array('unit' => 'ms');
         if(!$value || $value < 0) $value = 0;
