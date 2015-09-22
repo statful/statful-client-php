@@ -141,8 +141,6 @@ class TelemetronClient {
                 }
             }
 
-            var_dump($flushLine);
-
             $this->putRaw($flushLine);
         }
     }
