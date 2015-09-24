@@ -154,7 +154,8 @@ class TelemetronClient {
      * @param aggFreq Aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
      * @param sampleRate Sampling rate (1-99)
      */
-    public function put($metric, $value, $tags = array(), $namespace = 'application', $agg = array(), $aggFreq = null, $sampleRate = null) {
+    public function put($metric, $value, $tags = array(), $namespace = null, $agg = array(), $aggFreq = null, $sampleRate = null) {
+        if(is_null($namespace)) $namespace = $this->namespace;
         $metricName = implode('.', array($this->prefix, $namespace, $metric));
         $flushData = array();
         $sample_rate_normalized = ($sampleRate) / 100;
