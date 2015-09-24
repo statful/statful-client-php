@@ -12,13 +12,14 @@ class TelemetronClient {
     private $prefix;
     private $socket;
     private $buffer;
-    public $enviroment;
-    public $platform;
-    public $app;
-    public $tags = array();
+    private $environment;
+    private $platform;
+    private $app;
+    protected $namespace = 'application';
+    protected $sampleRate = 100;
+    protected $aggFreq = 10;
+    protected $tags = array();
     public $mock = false;
-    public $namespace = 'application';
-    public $sampleRate = 100;
 
     /**
      * Initialize the Telemetron udp client
@@ -51,6 +52,38 @@ class TelemetronClient {
     }
 
     /**
+     * Sets global metric namespace. Default: application
+     * @param $namespace
+     */
+    public function _setNamespace($namespace) {
+        $this->namespace = $namespace;
+    }
+
+    /**
+     * Sets global sampling rate (1-99)
+     * @param $sampleRate
+     */
+    public function _setSampleRate($sampleRate) {
+        $this->sampleRate = $sampleRate;
+    }
+
+    /**
+     * Sets global aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
+     * @param $aggFreq
+     */
+    public function _setAggFreq($aggFreq) {
+        $this->aggFreq = $aggFreq;
+    }
+
+    /**
+     * Sets global tags to associate this value with, for example {from: 'serviceA', to: 'serviceB', method: 'login'}
+     * @param $tags
+     */
+    public function _setTags($tags) {
+        $this->tags = $tags;
+    }
+
+    /**
      * Sends a timing metric
      *
      * @param name Name of the counter. Ex: response_time
@@ -59,13 +92,16 @@ class TelemetronClient {
      * @param namespace Define the metric namespace. Default: application
      * @param agg List of aggregations to be applied by the Telemetron. Ex: ['avg', 'p90', 'min']
      * @param aggFreq Aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
+     * @param sampleRate Sampling rate (1-99)
      */
-    public function time($name, $value, $tags = array(), $namespace = 'application', $agg = null, $aggFreq = 10) {
-        if(!$agg) $agg = array('avg', 'p90', 'count', 'count_ps');
+    public function time($name, $value, $tags = array(), $namespace = 'application', $agg = null, $aggFreq = null, $sampleRate = null) {
+        if(is_null($agg)) $agg = array('avg', 'p90', 'count', 'count_ps');
         $type = array('unit' => 'ms');
         if(!$value || $value < 0) $value = 0;
+        if(is_null($aggFreq)) $aggFreq = $this->aggFreq;
+        if(is_null($sampleRate)) $sampleRate = $this->sampleRate;
 
-        $this->put('timer.'.$name, $value, array_merge($type, $tags), $namespace, $agg, $aggFreq, $this->sampleRate);
+        $this->put('timer.'.$name, $value, array_merge($type, $tags), $namespace, $agg, $aggFreq, $sampleRate);
     }
 
     /**
@@ -77,12 +113,15 @@ class TelemetronClient {
      * @param namespace Define the metric namespace. Default: application
      * @param agg List of aggregations to be applied by the Telemetron. Ex: ['avg', 'p90', 'min']
      * @param aggFreq Aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
+     * @param sampleRate Sampling rate (1-99)
      */
-    public function inc($name, $value, $tags = array(), $namespace = 'application', $agg = null, $aggFreq = 10) {
-        if(!$agg) $agg = array('sum', 'count', 'count_ps');
+    public function inc($name, $value, $tags = array(), $namespace = 'application', $agg = null, $aggFreq = null, $sampleRate = null) {
+        if(is_null($agg)) $agg = array('sum', 'count', 'count_ps');
         if(!$value || $value < 0) $value = 0;
+        if(is_null($aggFreq)) $aggFreq = $this->aggFreq;
+        if(is_null($sampleRate)) $sampleRate = $this->sampleRate;
 
-        $this->put('counter.'.$name, $value, $tags, $namespace, $agg, $aggFreq, $this->sampleRate);
+        $this->put('counter.'.$name, $value, $tags, $namespace, $agg, $aggFreq, $sampleRate);
     }
 
     /**
@@ -93,12 +132,15 @@ class TelemetronClient {
      * @param namespace Define the metric namespace. Default: application
      * @param agg List of aggregations to be applied by the Telemetron. Ex: ['avg', 'p90', 'min']
      * @param aggFreq Aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
+     * @param sampleRate Sampling rate (1-99)
      */
-    public function gauge($name, $value, $tags = array(), $namespace = 'application', $agg = array('last'), $aggFreq = 10) {
-        if(!$agg) $agg = array('last');
+    public function gauge($name, $value, $tags = array(), $namespace = 'application', $agg = array('last'), $aggFreq = null, $sampleRate = null) {
+        if(is_null($agg)) $agg = array('last');
         if(!$value || $value < 0) $value = 0;
+        if(is_null($aggFreq)) $aggFreq = $this->aggFreq;
+        if(is_null($sampleRate)) $sampleRate = $this->sampleRate;
 
-        $this->put('counter'.$name, $value, $tags, $namespace, $agg, $aggFreq, $this->sampleRate);
+        $this->put('counter'.$name, $value, $tags, $namespace, $agg, $aggFreq, $sampleRate);
     }
 
     /**
@@ -110,12 +152,15 @@ class TelemetronClient {
      * @param namespace Define the metric namespace. Default: application
      * @param agg List of aggregations to be applied by the Telemetron. Ex: ['avg', 'p90', 'min']
      * @param aggFreq Aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
-     * @param sample_rate Sampling rate (1-99)
+     * @param sampleRate Sampling rate (1-99)
      */
-    public function put($metric, $value, $tags = array(), $namespace = 'application', $agg = array(), $aggFreq = 10, $sample_rate = 100) {
+    public function put($metric, $value, $tags = array(), $namespace = 'application', $agg = array(), $aggFreq = null, $sampleRate = null) {
         $metricName = implode('.', array($this->prefix, $namespace, $metric));
         $flushData = array();
-        $sample_rate_normalized = ($sample_rate) / 100;
+        $sample_rate_normalized = ($sampleRate) / 100;
+
+        if(!is_null($aggFreq)) $aggFreq = $this->aggFreq;
+        if(!is_null($sampleRate)) $sampleRate = $this->sampleRate;
 
         if(!empty($this->environment)) $tags = array_merge(array('environment' => $this->environment), $tags);
         if(!empty($this->platform)) $tags = array_merge(array('platform' => $this->platform), $tags);
@@ -132,12 +177,12 @@ class TelemetronClient {
 
             $flushLine = implode(',', $flushData) . ' ' . $value . ' ' . time();
 
-            if($agg) {
+            if(is_array($agg) && count($agg) > 0 && $aggFreq > 0) {
                 $agg[] = $aggFreq;
                 $flushLine .= ' ' . implode(',', $agg);
 
-                if($sample_rate && $sample_rate < 100) {
-                    $flushLine .= ' ' . $sample_rate;
+                if($sampleRate && $sampleRate < 100) {
+                    $flushLine .= ' ' . $sampleRate;
                 }
             }
 
