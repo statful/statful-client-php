@@ -11,7 +11,6 @@ class TelemetronClient {
     private $port;
     private $prefix;
     private $socket;
-    private $sampleRate;
     private $buffer;
     public $enviroment;
     public $platform;
@@ -19,6 +18,7 @@ class TelemetronClient {
     public $tags = array();
     public $mock = false;
     public $namespace = 'application';
+    public $sampleRate = 100;
 
     /**
      * Initialize the Telemetron udp client
@@ -65,7 +65,7 @@ class TelemetronClient {
         $type = array('unit' => 'ms');
         if(!$value || $value < 0) $value = 0;
 
-        $this->put('timer.'.$name, array_merge($type, $tags), $value, $agg, $aggFreq, $this->sampleRate, $namespace);
+        $this->put('timer.'.$name, $value, array_merge($type, $tags), $namespace, $agg, $aggFreq, $this->sampleRate);
     }
 
     /**
@@ -82,7 +82,7 @@ class TelemetronClient {
         if(!$agg) $agg = array('sum', 'count', 'count_ps');
         if(!$value || $value < 0) $value = 0;
 
-        $this->put('counter.'.$name, $tags, $value, $agg, $aggFreq, $this->sampleRate, $namespace);
+        $this->put('counter.'.$name, $value, $tags, $namespace, $agg, $aggFreq, $this->sampleRate);
     }
 
     /**
@@ -98,7 +98,7 @@ class TelemetronClient {
         if(!$agg) $agg = array('last');
         if(!$value || $value < 0) $value = 0;
 
-        $this->put('counter'.$name, $tags, $value, $agg, $aggFreq, $this->sampleRate, $namespace);
+        $this->put('counter'.$name, $value, $tags, $namespace, $agg, $aggFreq, $this->sampleRate);
     }
 
     /**
@@ -120,7 +120,7 @@ class TelemetronClient {
         if(!empty($this->environment)) $tags = array_merge(array('environment' => $this->environment), $tags);
         if(!empty($this->platform)) $tags = array_merge(array('platform' => $this->platform), $tags);
         if(!empty($this->app)) $tags = array_merge(array('app' => $this->app), $tags);
-        if(!empty($this->tags)) $tags = array_merge($tags, $this->tags);
+        if(!empty($this->tags)) $tags = array_merge($this->tags, $tags);
 
         if(mt_rand() / mt_getrandmax() <= $sample_rate_normalized) {
             foreach ($tags as $tag => $data) {
@@ -168,8 +168,14 @@ class TelemetronClient {
     public function flush() {
         try {
             if(count($this->buffer) > 0) {
-                $this->put('buffer', count($this->buffer), array('type' => 'flush_length'), $this->namespace, array('avg'));
-                $message = implode('\n', $this->buffer);
+                if(count($this->buffer) > 1) {
+                    $this->put('buffer', count($this->buffer), array('type' => 'flush_length'), $this->namespace, array('avg'));
+                    $message = implode("\n", $this->buffer);
+                }
+                else {
+                    $message = $this->buffer[0];
+                }
+
                 if($this->mock) {
                     echo 'Flushing metrics: ' . $message;
                 }
