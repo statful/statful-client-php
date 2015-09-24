@@ -155,13 +155,13 @@ class TelemetronClient {
      * @param sampleRate Sampling rate (1-99)
      */
     public function put($metric, $value, $tags = array(), $namespace = null, $agg = array(), $aggFreq = null, $sampleRate = null) {
-        if(is_null($namespace)) $namespace = $this->namespace;
+        if(!is_null($namespace)) $namespace = $this->namespace;
+        if(!is_null($aggFreq)) $aggFreq = $this->aggFreq;
+        if(!is_null($sampleRate)) $sampleRate = $this->sampleRate;
+
         $metricName = implode('.', array($this->prefix, $namespace, $metric));
         $flushData = array();
         $sample_rate_normalized = ($sampleRate) / 100;
-
-        if(!is_null($aggFreq)) $aggFreq = $this->aggFreq;
-        if(!is_null($sampleRate)) $sampleRate = $this->sampleRate;
 
         if(!empty($this->environment)) $tags = array_merge(array('environment' => $this->environment), $tags);
         if(!empty($this->platform)) $tags = array_merge(array('platform' => $this->platform), $tags);
@@ -224,6 +224,8 @@ class TelemetronClient {
 
                 if($this->mock) {
                     echo 'Flushing metrics: ' . $message;
+                    fopen("metrics.txt", "a+");
+                    file_put_contents('metrics.txt', $message."\n", FILE_APPEND);
                 }
                 else {
                     fwrite($this->socket, $message);
