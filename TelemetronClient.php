@@ -159,35 +159,40 @@ class TelemetronClient {
         if(!is_null($aggFreq)) $aggFreq = $this->aggFreq;
         if(!is_null($sampleRate)) $sampleRate = $this->sampleRate;
 
-        $metricName = implode('.', array($this->prefix, $namespace, $metric));
-        $flushData = array();
-        $sample_rate_normalized = ($sampleRate) / 100;
+        try {
+            $metricName = implode('.', array($this->prefix, $namespace, $metric));
+            $flushData = array();
+            $sample_rate_normalized = ($sampleRate) / 100;
 
-        if(!empty($this->environment)) $tags = array_merge(array('environment' => $this->environment), $tags);
-        if(!empty($this->platform)) $tags = array_merge(array('platform' => $this->platform), $tags);
-        if(!empty($this->app)) $tags = array_merge(array('app' => $this->app), $tags);
-        if(!empty($this->tags)) $tags = array_merge($this->tags, $tags);
+            if(!empty($this->environment)) $tags = array_merge(array('environment' => $this->environment), $tags);
+            if(!empty($this->platform)) $tags = array_merge(array('platform' => $this->platform), $tags);
+            if(!empty($this->app)) $tags = array_merge(array('app' => $this->app), $tags);
+            if(!empty($this->tags)) $tags = array_merge($this->tags, $tags);
 
-        if(mt_rand() / mt_getrandmax() <= $sample_rate_normalized) {
-            foreach ($tags as $tag => $data) {
-                $flushData[] = "$tag=$data";
-            }
-
-            if (empty($flushData)) { return; }
-            array_unshift($flushData,$metricName);
-
-            $flushLine = implode(',', $flushData) . ' ' . $value . ' ' . time();
-
-            if(is_array($agg) && count($agg) > 0 && $aggFreq > 0) {
-                $agg[] = $aggFreq;
-                $flushLine .= ' ' . implode(',', $agg);
-
-                if($sampleRate && $sampleRate < 100) {
-                    $flushLine .= ' ' . $sampleRate;
+            if(mt_rand() / mt_getrandmax() <= $sample_rate_normalized) {
+                foreach ($tags as $tag => $data) {
+                    $flushData[] = "$tag=$data";
                 }
-            }
 
-            $this->putRaw($flushLine);
+                if (empty($flushData)) { return; }
+                array_unshift($flushData,$metricName);
+
+                $flushLine = implode(',', $flushData) . ' ' . $value . ' ' . time();
+
+                if(is_array($agg) && count($agg) > 0 && $aggFreq > 0) {
+                    $agg[] = $aggFreq;
+                    $flushLine .= ' ' . implode(',', $agg);
+
+                    if($sampleRate && $sampleRate < 100) {
+                        $flushLine .= ' ' . $sampleRate;
+                    }
+                }
+
+                $this->putRaw($flushLine);
+            }
+        }
+        catch (Exception $e) {
+
         }
     }
 
@@ -224,8 +229,6 @@ class TelemetronClient {
 
                 if($this->mock) {
                     echo 'Flushing metrics: ' . $message;
-                    fopen("metrics.txt", "a+");
-                    file_put_contents('metrics.txt', $message."\n", FILE_APPEND);
                 }
                 else {
                     fwrite($this->socket, $message);
