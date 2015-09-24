@@ -134,7 +134,7 @@ class TelemetronClient {
      * @param aggFreq Aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
      * @param sampleRate Sampling rate (1-99)
      */
-    public function gauge($name, $value, $tags = array(), $namespace = 'application', $agg = array('last'), $aggFreq = null, $sampleRate = null) {
+    public function gauge($name, $value, $tags = array(), $namespace = 'application', $agg = null, $aggFreq = null, $sampleRate = null) {
         if(is_null($agg)) $agg = array('last');
         if(!$value || $value < 0) $value = 0;
         if(is_null($aggFreq)) $aggFreq = $this->aggFreq;
