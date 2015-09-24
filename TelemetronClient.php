@@ -155,9 +155,9 @@ class TelemetronClient {
      * @param sampleRate Sampling rate (1-99)
      */
     public function put($metric, $value, $tags = array(), $namespace = null, $agg = array(), $aggFreq = null, $sampleRate = null) {
-        if(!is_null($namespace)) $namespace = $this->namespace;
-        if(!is_null($aggFreq)) $aggFreq = $this->aggFreq;
-        if(!is_null($sampleRate)) $sampleRate = $this->sampleRate;
+        if(is_null($namespace)) $namespace = $this->namespace;
+        if(is_null($aggFreq)) $aggFreq = $this->aggFreq;
+        if(is_null($sampleRate)) $sampleRate = $this->sampleRate;
 
         try {
             $metricName = implode('.', array($this->prefix, $namespace, $metric));
