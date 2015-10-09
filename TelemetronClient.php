@@ -20,6 +20,7 @@ class TelemetronClient {
     protected $aggFreq = 10;
     protected $tags = array();
     public $mock = false;
+    public $persistent = true;
 
     /**
      * Initialize the Telemetron udp client
@@ -42,7 +43,10 @@ class TelemetronClient {
         $this->buffer = array();
 
         try {
-            $this->socket = fsockopen("udp://$this->host", $this->port, $errno, $errstr);
+            if($this->persistent)
+                $this->socket = pfsockopen("udp://$this->host", $this->port, $errno, $errstr);
+            else
+                $this->socket = fsockopen("udp://$this->host", $this->port, $errno, $errstr);
         }
         catch (Exception $e) {
 
@@ -210,7 +214,7 @@ class TelemetronClient {
      */
     public function send() {
         $this->flush();
-        $this->close();
+        if(!$this->persistent) $this->close();
     }
 
     /**
