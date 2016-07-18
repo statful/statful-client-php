@@ -99,7 +99,7 @@ class TelemetronClient {
      * @param sampleRate Sampling rate (1-99)
      */
     public function time($name, $value, $tags = array(), $namespace = 'application', $agg = null, $aggFreq = null, $sampleRate = null) {
-        if(is_null($agg)) $agg = array('avg', 'p90', 'count', 'count_ps');
+        if(is_null($agg)) $agg = array('avg', 'p90', 'count');
         $type = array('unit' => 'ms');
         if(!$value || $value < 0) $value = 0;
         if(is_null($aggFreq)) $aggFreq = $this->aggFreq;
@@ -120,7 +120,7 @@ class TelemetronClient {
      * @param sampleRate Sampling rate (1-99)
      */
     public function inc($name, $value, $tags = array(), $namespace = 'application', $agg = null, $aggFreq = null, $sampleRate = null) {
-        if(is_null($agg)) $agg = array('sum', 'count', 'count_ps');
+        if(is_null($agg)) $agg = array('sum', 'count');
         if(!$value || $value < 0) $value = 0;
         if(is_null($aggFreq)) $aggFreq = $this->aggFreq;
         if(is_null($sampleRate)) $sampleRate = $this->sampleRate;
