@@ -1,11 +1,11 @@
 <?php
 
 /**
- * The UDP Client for Telemetron.
+ * The UDP Client for Statful.
  *
  * @constructor
  */
-class TelemetronClient {
+class StatfulClient {
 
     private $host;
     private $port;
@@ -23,7 +23,7 @@ class TelemetronClient {
     public $persistent = true;
 
     /**
-     * Initialize the Telemetron udp client
+     * Initialize the Statful udp client
      * @param string host statsd host address
      * @port string port statsd host port
      * @prefix string prefix metric prefix
@@ -94,7 +94,7 @@ class TelemetronClient {
      * @param value
      * @param tags Tags to associate this value with, for example {from: 'serviceA', to: 'serviceB', method: 'login'}
      * @param namespace Define the metric namespace. Default: application
-     * @param agg List of aggregations to be applied by the Telemetron. Ex: ['avg', 'p90', 'min']
+     * @param agg List of aggregations to be applied by the Statful. Ex: ['avg', 'p90', 'min']
      * @param aggFreq Aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
      * @param sampleRate Sampling rate (1-99)
      */
@@ -115,7 +115,7 @@ class TelemetronClient {
      * @param value
      * @param tags Tags to associate this value with, for example {type: 'purchase_order'}
      * @param namespace Define the metric namespace. Default: application
-     * @param agg List of aggregations to be applied by the Telemetron. Ex: ['avg', 'p90', 'min']
+     * @param agg List of aggregations to be applied by the Statful. Ex: ['avg', 'p90', 'min']
      * @param aggFreq Aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
      * @param sampleRate Sampling rate (1-99)
      */
@@ -134,7 +134,7 @@ class TelemetronClient {
      * @param value
      * @param tags Tags to associate this value with, for example {page: 'overview'}
      * @param namespace Define the metric namespace. Default: application
-     * @param agg List of aggregations to be applied by the Telemetron. Ex: ['avg', 'p90', 'min']
+     * @param agg List of aggregations to be applied by the Statful. Ex: ['avg', 'p90', 'min']
      * @param aggFreq Aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
      * @param sampleRate Sampling rate (1-99)
      */
@@ -154,7 +154,7 @@ class TelemetronClient {
      * @param value
      * @param tags Tags to associate this value with, for example {from: 'serviceA', to: 'serviceB', method: 'login'}
      * @param namespace Define the metric namespace. Default: application
-     * @param agg List of aggregations to be applied by the Telemetron. Ex: ['avg', 'p90', 'min']
+     * @param agg List of aggregations to be applied by the Statful. Ex: ['avg', 'p90', 'min']
      * @param aggFreq Aggregation frequency in seconds. One of: 10, 15, 30, 60 or 300
      * @param sampleRate Sampling rate (1-99)
      */
@@ -218,7 +218,7 @@ class TelemetronClient {
     }
 
     /**
-     * Flushes the metrics to the Telemetron via UDP.
+     * Flushes the metrics to the Statful via UDP.
      */
     public function flush() {
         try {

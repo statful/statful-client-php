@@ -1,6 +1,6 @@
-# telemetron-client-php
+# statful-client-php
 
-PHP Client to the Telemetron
+PHP Client for Statful
 
 # How to use
 
@@ -16,7 +16,7 @@ PHP Client to the Telemetron
         );
         $metricValue = 100;
 
-        $client = new TelemetronClient('127.0.0.1', '2014', 'business', 'production');
+        $client = new StatfulClient('127.0.0.1', '2014', 'business', 'production');
         $client->put($metricName, $metricValue, $metricTags, $metricNamespace);
         $client->send();
 
