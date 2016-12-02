@@ -1,0 +1,11 @@
+{
+  "name": "statful/statful-client-php",
+  "type": "library",
+  "description": "Statful PHP client",
+  "keywords": ["statful", "metrics", "telemetry", "time-series"],
+  "homepage": "https://github.com/statful/statful-client-php",
+  "license": "MIT",
+  "require": {
+    "php": ">=5.3.0"
+  }
+}

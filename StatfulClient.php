@@ -24,8 +24,8 @@ class StatfulClient {
 
     /**
      * Initialize the Statful udp client
-     * @param string host statsd host address
-     * @port string port statsd host port
+     * @param string host Statful host address
+     * @port string port Statful host port
      * @prefix string prefix metric prefix
      * @environment string environment tag
      * @platform string platform tag
